@@ -1,0 +1,26 @@
+:host { --verde: #2e7d32; --texto: #1f2933; --borde: #c8dccb; display: block; } 
+main { max-width: 900px; margin: 0 auto; padding: 24px 16px; color: var(--texto); } 
+h1 { color: var(--verde); margin-top: 0; } 
+  
+/* Formulario: una columna en móvil, tres columnas en pantallas anchas */ 
+form { display: grid; gap: 12px; align-items: end; } 
+@media (min-width: 720px) { 
+  form { grid-template-columns: repeat(3, 1fr) auto; } 
+} 
+.campo { display: grid; gap: 4px; } 
+label { font-weight: 600; } 
+input { padding: 10px; border: 1px solid #8a9a8c; border-radius: 6px; font-size: 1rem; } 
+input:focus, button:focus-visible { outline: 3px solid #81c784; outline-offset: 2px; } 
+button { padding: 10px 16px; border: 0; border-radius: 6px; background: var(--verde); 
+  color: #fff; font-size: 1rem; cursor: pointer; } 
+  
+.error { color: #b71c1c; } 
+.exito { color: var(--verde); } 
+  
+/* La tabla se desplaza horizontalmente en pantallas pequeñas */ 
+.tabla { overflow-x: auto; } 
+table { width: 100%; border-collapse: collapse; background: #fff; min-width: 520px; } 
+caption { text-align: left; font-weight: 600; padding: 8px 0; } 
+th, td { border-bottom: 1px solid var(--borde); padding: 10px; text-align: left; } 
+th { background: var(--verde); color: #fff; } 
+.eliminar { background: #b71c1c; padding: 6px 12px; }
