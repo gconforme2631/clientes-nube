@@ -53,3 +53,9 @@ test('DELETE elimina el cliente y luego responde 404', async () => {
   assert.equal((await fetch(`${url}/${cliente.id}`, { method: 'DELETE' })).status, 204); 
   assert.equal((await fetch(`${url}/${cliente.id}`, { method: 'DELETE' })).status, 404); 
 });
+
+test('GET /api/salud responde 200 con estado ok', async () => {
+  const respuesta = await fetch(url.replace('/clientes', '/salud'));
+  assert.equal(respuesta.status, 200);
+  assert.deepEqual(await respuesta.json(), { estado: 'ok' });
+});

@@ -4,26 +4,36 @@ const cors = require('cors');
 const db = require('./db'); 
 const { validarCliente } = require('./validaciones'); 
   
-const SQLITE_CONSTRAINT_UNIQUE = 2067; // código de SQLite para un valor duplicado 
+// Orígenes permitidos por CORS: se configuran con la variable CORS_ORIGINS 
+// (separados por comas). Por defecto: Angular y Expo web en el computador. 
+const ORIGENES_LOCALES = 'http://localhost:4200,http://localhost:8081'; 
+const ORIGENES = (process.env.CORS_ORIGINS ?? ORIGENES_LOCALES) 
+  .split(',') 
+  .map((origen) => origen.trim()); 
   
 const app = express(); 
-app.use(cors({ origin: 'http://localhost:4200' })); // solo el frontend de Angular 
+app.use(cors({ origin: ORIGENES })); 
 app.use(express.json()); 
   
+// GET /api/salud → la plataforma comprueba que la API está activa 
+app.get('/api/salud', (_req, res) => { 
+  res.json({ estado: 'ok' }); 
+}); 
+  
 // GET /api/clientes → lista de clientes 
-app.get('/api/clientes', (_req, res) => { 
-  res.json(db.listar()); 
+app.get('/api/clientes', async (_req, res) => { 
+  res.json(await db.listar()); 
 }); 
   
 // POST /api/clientes → registra un cliente 
-app.post('/api/clientes', (req, res) => { 
+app.post('/api/clientes', async (req, res) => { 
   const { valido, errores, datos } = validarCliente(req.body); 
   if (!valido) return res.status(400).json({ errores }); 
   try { 
-    const id = db.agregar(datos); 
+    const id = await db.agregar(datos); 
     res.status(201).json({ id, ...datos }); 
   } catch (error) { 
-    if (error.errcode === SQLITE_CONSTRAINT_UNIQUE) { 
+    if (error.duplicado) { 
       return res.status(409).json({ errores: ['El correo ya está registrado.'] }); 
     } 
     throw error; 
@@ -31,11 +41,12 @@ app.post('/api/clientes', (req, res) => {
 }); 
   
 // DELETE /api/clientes/:id → elimina un cliente 
-app.delete('/api/clientes/:id', (req, res) => { 
-  const eliminados = db.eliminar(Number(req.params.id)); 
-  if (eliminados === 0) return res.status(404).json({ errores: ['Cliente no encontrado.'] 
-}); 
+app.delete('/api/clientes/:id', async (req, res) => { 
+  const eliminados = await db.eliminar(Number(req.params.id)); 
+  if (eliminados === 0) { 
+    return res.status(404).json({ errores: ['Cliente no encontrado.'] }); 
+  } 
   res.status(204).end(); 
 }); 
   
-module.exports = app; 
+module.exports = app;
